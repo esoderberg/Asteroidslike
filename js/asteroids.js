@@ -13,7 +13,7 @@ class Entity extends Phaser.Physics.Arcade.Sprite{
 }
 
 class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}}){
+    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=1}){
         super(scene, x, y, texture, frame);
         this.score = 0;
         this.world = world;
@@ -23,6 +23,9 @@ class Ship extends Entity{
         this.right = right;
         this.fire = fire;
 
+        this.fireCooldown = fireCooldown*1000; // Convert to milliseconds
+        this.sinceFired = 0;
+
         this.turnVel = 180;
         this.acceleration = 50;
     }
@@ -30,6 +33,9 @@ class Ship extends Entity{
     update(time, delta){
         let angularVel = 0;
         let acceleration = 0;
+
+        this.sinceFired += delta;
+
         if(this.forward.isDown){
             this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));    
         }else{
@@ -43,8 +49,9 @@ class Ship extends Entity{
         }
         this.setAngularVelocity(angularVel);
 
-        if(this.fire.isDown){
+        if(this.fire.isDown && this.sinceFired > this.fireCooldown){
             world.spawnBullet(this);
+            this.sinceFired = 0;
         }
     }
     facing(){
