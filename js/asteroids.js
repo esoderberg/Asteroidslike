@@ -7,7 +7,6 @@ const HEIGHT = 600;
 class Entity extends Phaser.Physics.Arcade.Sprite{
     constructor(scene,...args){
         super(scene, ...args);
-        this.world = world;
         scene.add.existing(this);
         scene.physics.add.existing(this);
     }
@@ -16,9 +15,8 @@ class Entity extends Phaser.Physics.Arcade.Sprite{
 class Ship extends Entity{
     constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}}){
         super(scene, x, y, texture, frame);
-        
         this.score = 0;
-
+        this.world = world;
         // Bindings for input
         this.forward = forward;
         this.left = left;
