@@ -173,10 +173,12 @@ world.splitAsteroid = function splitAsteroid(asteroid){
     console.log("NewSize:", newSize);
     if(newSize <= 0) return;
 
+    let {x, y} = asteroid.body.position;
     for(let i = 0; i < 2; i++){
-        let asteroid = new Asteroid({sargs:[this.scene, 150+Math.random()*100,150+Math.random()*100, asteroid_size_name[newSize], 0],size:newSize});
+        let {x:rx, y:ry} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(),16);
+        let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[newSize], 0],size:newSize});
         this.asteroids.add(asteroid);
-        let {x:vx, y:vy} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(10,10));
+        let {x:vx, y:vy} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(), 10);
         asteroid.setVelocity(vx,vy);
         asteroid.setAngularVelocity(-15+Math.random()*30);
     }
