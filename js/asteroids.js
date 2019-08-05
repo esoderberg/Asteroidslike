@@ -272,8 +272,10 @@ function create ()
         right: this.input.keyboard.addKey('D'),
         fire: this.input.keyboard.addKey('Space')
     };
-    
-    world.ships.add(new Ship({scene: this, x: CENTER.x, y: CENTER.y, texture: "ship", inputKeys: inputKeys, world:world}));
+    let ship = new Ship({scene: this, x: CENTER.x, y: CENTER.y, texture: "ship", inputKeys: inputKeys, world:world});
+    world.ships.add(ship);
+    ship.setDrag(0.99);
+    ship.setDamping(true);
 }
 
 function update ()
