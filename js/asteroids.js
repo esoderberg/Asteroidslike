@@ -4,14 +4,12 @@
 import {Ship} from "./ship.js";
 import {Asteroid} from "./asteroid.js";
 import {Bullet} from "./bullet.js";
+import {randRange} from "./util.js";
 const WIDTH = 800;
 const HEIGHT = 600;
 const CENTER = {x: WIDTH/2, y: HEIGHT/2};
 const qRad = Math.PI/4;
 
-function randRange(min, max){
-    return min + Math.random()*(max - min);
-}
 
 
 var config = {
@@ -148,22 +146,13 @@ world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
     let {x,y, dir:direction} = this.getOuterRimCoords();
     let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[size], 0],size:size});
     this.asteroids.add(asteroid);
-    this.launchAsteroid(asteroid, direction + Math.PI);
-};
-
-world.launchAsteroid = function launchAsteroid(asteroid, direction){
-    let dirx = randRange(direction-qRad, direction+qRad);
-    let diry = randRange(direction-qRad, direction+qRad);
-    let vx = 60 * Math.cos(dirx);
-    let vy = 60 * Math.sin(diry);
-    asteroid.setVelocity(vx, vy);
-    asteroid.setAngularVelocity(randRange(-30, 30));
+    asteroid.launchAsteroid(60, direction + Math.PI, qRad);
 };
 
 world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
     let {x,y, dir:direction} = this.getOuterRimCoords();
     asteroid.setPosition(x, y);
-    this.launchAsteroid(asteroid, direction + Math.PI);
+    asteroid.launchAsteroid(60, direction + Math.PI, qRad);
 };
 
 world.splitAsteroid = function splitAsteroid(asteroid){
@@ -207,6 +196,7 @@ function create ()
     ship.setDamping(true);
     let scoreText = this.add.text(16,16,"Score: 0");
     ship.on("score", (score) => {scoreText.setText("Score: "+ score);});
+    this.physics.config.debug = false;
 }
 
 function update ()
