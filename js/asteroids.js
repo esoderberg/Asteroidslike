@@ -4,7 +4,7 @@
 const WIDTH = 800;
 const HEIGHT = 600;
 const CENTER = {x: WIDTH/2, y: HEIGHT/2};
-
+const qRad = Math.PI/4;
 
 function randRange(min, max){
     return min + Math.random()*(max - min);
@@ -145,6 +145,9 @@ function asteroidHit(bullet, asteroid){
 var world = {};
 
 function initializeWorld(world, scene){
+
+    world.maxAsteroids = 7;
+
     // Sets up scene physics
     world.scene = scene;
     world.asteroids = scene.physics.add.group();
@@ -180,6 +183,7 @@ function initializeWorld(world, scene){
 
     scene.physics.add.overlap(world.ships, world.asteroids, asteroidCollision);
     scene.physics.add.overlap(world.bullets, world.asteroids, asteroidHit);
+    scene.physics.add.overlap(world.asteroids, world.worldBounds, world.respawnAsteroid, null, world);
 }
 
 world.spawnBullet = function spawnBullet(shooter){
@@ -191,16 +195,46 @@ world.spawnBullet = function spawnBullet(shooter){
     let {x:fx, y:fy} = shooter.facing();
     bullet.setVelocity(300*fx, 300*fy);
     bullet.play("bullet");
+};
+
+    /** Get a point on the outer rim randomly.
+     * 
+     * x, y : the coordinates
+     * 
+     * direction : the radian angle of the coordinates from the world center. Add PI to get towards center.
+     */
+world.getOuterRimCoords = function getOuterRimCoords(){
+
+    let direction = Math.random()*Math.PI*2;
+    let x = CENTER.x + Math.cos(direction) * randRange(250,350);
+    let y = CENTER.y + Math.sin(direction) * randRange(250,350);
+    return {x:x, y:y, dir:direction};
+} 
+
+/**Spawn an asteroid at a random location on the outer rim */
+world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
+    let {x,y, dir:direction} = this.getOuterRimCoords();
+    let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[size], 0],size:size});
+    this.asteroids.add(asteroid);
+    this.launchAsteroid(asteroid, direction + Math.PI);
+};
+
+world.launchAsteroid = function launchAsteroid(asteroid, direction){
+    let dirx = randRange(direction-qRad, direction+qRad);
+    let diry = randRange(direction-qRad, direction+qRad);
+    let vx = 30 * Math.cos(dirx);
+    let vy = 30 * Math.sin(diry);
+    asteroid.setVelocity(vx, vy);
+    asteroid.setAngularVelocity(randRange(-30, 30));
 }
 
-world.spawnRandomAsteroid = function spawnRandomAsteroid(){
-    let asteroid = new Asteroid({sargs:[this.scene, 150+Math.random()*100,150+Math.random()*100, "bigAsteroids", 0],size:3});
-    this.asteroids.add(asteroid);
-    // asteroid.setSize(64,64);
-    asteroid.setVelocity(30, 30);
-    asteroid.setAngularVelocity(-15+Math.random()*30);
-    
-};
+world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
+    console.log("respawn asteroid!", asteroid);
+    let {x,y, dir:direction} = this.getOuterRimCoords();
+    console.log(x,y,direction);
+    asteroid.setPosition(x, y);
+    this.launchAsteroid(asteroid, direction + Math.PI);
+}
 
 world.splitAsteroid = function splitAsteroid(asteroid){
     let newSize = asteroid.size-1;
@@ -214,7 +248,7 @@ world.splitAsteroid = function splitAsteroid(asteroid){
         this.asteroids.add(asteroid);
         let {x:vx, y:vy} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(), 10);
         asteroid.setVelocity(vx,vy);
-        asteroid.setAngularVelocity(-15+Math.random()*30);
+        asteroid.setAngularVelocity(randRange(-30, 30));
     }
 };
 
@@ -232,15 +266,14 @@ function create ()
         left: this.input.keyboard.addKey('A'),
         right: this.input.keyboard.addKey('D'),
         fire: this.input.keyboard.addKey('Space')
-    }
+    };
     
     world.ships.add(new Ship({scene: this, x: 100, y: 100, texture: "ship", inputKeys: inputKeys, world:world}));
-
-    world.spawnRandomAsteroid(this);
-    // world.asteroids.push(new Asteroid({scene: this, x:200, y:400, texture: "asteroids", frame:1}));
-
 }
 
 function update ()
 {
+    if(world.asteroids.getLength() < world.maxAsteroids){
+        world.spawnRandomAsteroid(3);
+    }
 }
