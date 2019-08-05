@@ -209,7 +209,7 @@ world.getOuterRimCoords = function getOuterRimCoords(){
     let x = CENTER.x + Math.cos(direction) * randRange(250,350);
     let y = CENTER.y + Math.sin(direction) * randRange(250,350);
     return {x:x, y:y, dir:direction};
-} 
+};
 
 /**Spawn an asteroid at a random location on the outer rim */
 world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
@@ -226,7 +226,7 @@ world.launchAsteroid = function launchAsteroid(asteroid, direction){
     let vy = 30 * Math.sin(diry);
     asteroid.setVelocity(vx, vy);
     asteroid.setAngularVelocity(randRange(-30, 30));
-}
+};
 
 world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
     console.log("respawn asteroid!", asteroid);
@@ -234,7 +234,7 @@ world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
     console.log(x,y,direction);
     asteroid.setPosition(x, y);
     this.launchAsteroid(asteroid, direction + Math.PI);
-}
+};
 
 world.splitAsteroid = function splitAsteroid(asteroid){
     let newSize = asteroid.size-1;
