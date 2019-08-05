@@ -22,6 +22,8 @@ export class Ship extends Entity{
 
         this.turnVel = 180;
         this.acceleration = 120;
+
+        this.scoreListeners = [];
     }
 
     update(time, delta){
@@ -63,4 +65,10 @@ export class Ship extends Entity{
     facing(){
         return new Phaser.Math.Vector2(Math.sin(this.rotation), -Math.cos(this.rotation));
     }
+
+    addScore(score){
+        this.score += score;
+        this.emit("score", this.score);
+    }
+
 }

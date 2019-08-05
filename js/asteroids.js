@@ -66,8 +66,7 @@ function asteroidCollision(ship, asteroid){
 
 function asteroidHit(bullet, asteroid){
     world.splitAsteroid(asteroid);
-    console.log("Asteroid hit");
-    bullet.owner.score += 1;
+    bullet.owner.addScore(1);
     bullet.owner.reload();
     bullet.destroy();
     asteroid.destroy();
@@ -162,16 +161,13 @@ world.launchAsteroid = function launchAsteroid(asteroid, direction){
 };
 
 world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
-    console.log("respawn asteroid!", asteroid);
     let {x,y, dir:direction} = this.getOuterRimCoords();
-    console.log(x,y,direction);
     asteroid.setPosition(x, y);
     this.launchAsteroid(asteroid, direction + Math.PI);
 };
 
 world.splitAsteroid = function splitAsteroid(asteroid){
     let newSize = asteroid.size-1;
-    console.log("NewSize:", newSize);
     if(newSize <= 0) return;
     let originalVel = asteroid.body.velocity;
 
@@ -209,6 +205,8 @@ function create ()
     world.ships.add(ship);
     ship.setDrag(0.99);
     ship.setDamping(true);
+    let scoreText = this.add.text(16,16,"Score: 0");
+    ship.on("score", (score) => {scoreText.setText("Score: "+ score);});
 }
 
 function update ()
