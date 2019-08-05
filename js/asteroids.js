@@ -206,8 +206,8 @@ world.spawnBullet = function spawnBullet(shooter){
 world.getOuterRimCoords = function getOuterRimCoords(){
 
     let direction = Math.random()*Math.PI*2;
-    let x = CENTER.x + Math.cos(direction) * randRange(WIDTH+100,WIDTH+200);
-    let y = CENTER.y + Math.sin(direction) * randRange(HEIGHT+100,HEIGHT+200);
+    let x = CENTER.x + Math.cos(direction) * randRange(WIDTH/2+100,WIDTH/2+200);
+    let y = CENTER.y + Math.sin(direction) * randRange(HEIGHT/2+100,HEIGHT/2+200);
     return {x:x, y:y, dir:direction};
 };
 
