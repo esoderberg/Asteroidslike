@@ -20,7 +20,7 @@ class Entity extends Phaser.Physics.Arcade.Sprite{
 }
 
 class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=1}){
+    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.3}){
         super(scene, x, y, texture, frame);
         this.score = 0;
         this.world = world;
@@ -34,7 +34,7 @@ class Ship extends Entity{
         this.sinceFired = 0;
 
         this.turnVel = 180;
-        this.acceleration = 50;
+        this.acceleration = 120;
     }
 
     update(time, delta){
@@ -146,7 +146,7 @@ var world = {};
 
 function initializeWorld(world, scene){
 
-    world.maxAsteroids = 7;
+    world.maxAsteroids = 15;
 
     // Sets up scene physics
     world.scene = scene;
@@ -162,7 +162,7 @@ function initializeWorld(world, scene){
 
     /** Calculate world bounds as offset from the center */
     let rect_width = 5;
-    let offset = 300;
+    let offset = WIDTH/2 + 400;
     let left = CENTER.x-offset;
     let right = CENTER.x + (offset-rect_width);
     let top = CENTER.y-offset;
@@ -187,7 +187,7 @@ function initializeWorld(world, scene){
 }
 
 world.spawnBullet = function spawnBullet(shooter){
-    let {x, y} = shooter.body.position;
+    let {x, y} = shooter.getCenter();
     let bullet = new Bullet({sargs:[this.scene, x, y, "plasmaBullet",0], owner:shooter});
     this.bullets.add(bullet);
 
@@ -206,8 +206,8 @@ world.spawnBullet = function spawnBullet(shooter){
 world.getOuterRimCoords = function getOuterRimCoords(){
 
     let direction = Math.random()*Math.PI*2;
-    let x = CENTER.x + Math.cos(direction) * randRange(250,350);
-    let y = CENTER.y + Math.sin(direction) * randRange(250,350);
+    let x = CENTER.x + Math.cos(direction) * randRange(WIDTH+100,WIDTH+200);
+    let y = CENTER.y + Math.sin(direction) * randRange(HEIGHT+100,HEIGHT+200);
     return {x:x, y:y, dir:direction};
 };
 
@@ -222,8 +222,8 @@ world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
 world.launchAsteroid = function launchAsteroid(asteroid, direction){
     let dirx = randRange(direction-qRad, direction+qRad);
     let diry = randRange(direction-qRad, direction+qRad);
-    let vx = 30 * Math.cos(dirx);
-    let vy = 30 * Math.sin(diry);
+    let vx = 60 * Math.cos(dirx);
+    let vy = 60 * Math.sin(diry);
     asteroid.setVelocity(vx, vy);
     asteroid.setAngularVelocity(randRange(-30, 30));
 };
@@ -240,15 +240,20 @@ world.splitAsteroid = function splitAsteroid(asteroid){
     let newSize = asteroid.size-1;
     console.log("NewSize:", newSize);
     if(newSize <= 0) return;
+    let originalVel = asteroid.body.velocity;
 
-    let {x, y} = asteroid.body.position;
+    let {x, y} = asteroid.getCenter();
+
     for(let i = 0; i < 2; i++){
         let {x:rx, y:ry} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(),16);
-        let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[newSize], 0],size:newSize});
+        let asteroid = new Asteroid({sargs:[this.scene, x+rx, y+ry, asteroid_size_name[newSize], 0],size:newSize});
         this.asteroids.add(asteroid);
-        let {x:vx, y:vy} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(), 10);
-        asteroid.setVelocity(vx,vy);
-        asteroid.setAngularVelocity(randRange(-30, 30));
+
+        // Construct new velocity that is slightly slower and somewhat in the same direction
+        let newVel = new Phaser.Math.Vector2();
+        newVel.setToPolar(originalVel.angle()+randRange(-qRad, qRad), originalVel.length()* 0.8);
+        asteroid.setVelocity(newVel.x, newVel.y);
+        asteroid.setAngularVelocity(randRange(-60/newSize, 60/newSize)); // Smaller rotate faster
     }
 };
 
@@ -268,7 +273,7 @@ function create ()
         fire: this.input.keyboard.addKey('Space')
     };
     
-    world.ships.add(new Ship({scene: this, x: 100, y: 100, texture: "ship", inputKeys: inputKeys, world:world}));
+    world.ships.add(new Ship({scene: this, x: CENTER.x, y: CENTER.y, texture: "ship", inputKeys: inputKeys, world:world}));
 }
 
 function update ()
