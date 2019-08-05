@@ -1,6 +1,9 @@
 /** @type {import("typings/phaser")} */
 /*jshint esversion: 6 */
 
+import {Ship} from "./ship.js";
+import {Asteroid} from "./asteroid.js";
+import {Bullet} from "./bullet.js";
 const WIDTH = 800;
 const HEIGHT = 600;
 const CENTER = {x: WIDTH/2, y: HEIGHT/2};
@@ -9,94 +12,6 @@ const qRad = Math.PI/4;
 function randRange(min, max){
     return min + Math.random()*(max - min);
 }
-
-
-class Entity extends Phaser.Physics.Arcade.Sprite{
-    constructor(scene,...args){
-        super(scene, ...args);
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
-    }
-}
-
-class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.2, reloadCooldown=0.8}){
-        super(scene, x, y, texture, frame);
-        this.score = 0;
-        this.world = world;
-        // Bindings for input
-        this.forward = forward;
-        this.left = left;
-        this.right = right;
-        this.fire = fire;
-
-        this.fireCooldown = fireCooldown*1000; // Convert to milliseconds
-        this.sinceFired = 0;
-        this.sinceReload = 0;
-        this.reloadCooldown = reloadCooldown*1000;
-        this.storedBullets = 10;
-        this.maxBullets = 10;
-
-
-        this.turnVel = 180;
-        this.acceleration = 120;
-    }
-
-    update(time, delta){
-        let angularVel = 0;
-        let acceleration = 0;
-
-        this.sinceFired += delta;
-        this.sinceReload += delta;
-
-        if(this.forward.isDown){
-            this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));    
-        }else{
-            this.setAcceleration(0,0);
-        }
-        if(this.left.isDown){
-            angularVel += -this.turnVel;
-        }
-        if(this.right.isDown){
-            angularVel += this.turnVel;
-        }
-        this.setAngularVelocity(angularVel);
-
-        if(this.sinceReload > this.reloadCooldown && this.storedBullets < this.maxBullets){
-            this.reload();
-            this.sinceReload = 0;
-        }
-
-        if(this.fire.isDown && this.sinceFired > this.fireCooldown && this.storedBullets > 0){
-            this.storedBullets -= 1;
-            world.spawnBullet(this);
-            this.sinceFired = 0;
-        }
-    }
-
-    reload(){
-        this.storedBullets += 1;
-    }
-
-    facing(){
-        return new Phaser.Math.Vector2(Math.sin(this.rotation), -Math.cos(this.rotation));
-    }
-}
-
-class Asteroid extends Entity{
-    constructor({sargs,size=3}){
-        super(...sargs);
-        this.size = size;
-    }
-}
-
-class Bullet extends Entity{
-    constructor({sargs, owner}){
-        super(...sargs);
-        this.owner = owner;
-    }
-}
-
 
 
 var config = {
@@ -284,7 +199,7 @@ function create ()
     console.log(this);
     console.log(world);
     // world.groups.player = this.physics.group
-    inputKeys = {
+    let inputKeys = {
         forward: this.input.keyboard.addKey('W'),
         left: this.input.keyboard.addKey('A'),
         right: this.input.keyboard.addKey('D'),
