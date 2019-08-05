@@ -53,7 +53,7 @@ export class Ship extends Entity{
 
         if(this.fire.isDown && this.sinceFired > this.fireCooldown && this.storedBullets > 0){
             this.storedBullets -= 1;
-            this.world.spawnBullet(this);
+            this.world.spawnBullet(this.getCenter().x, this.getCenter().y, this);
             this.sinceFired = 0;
         }
     }

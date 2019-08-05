@@ -36,6 +36,20 @@ var config = {
 };
 
 
+/** Get a random point from the outer rim.
+ *
+ * x - x coordinate
+ * y - y coordinate
+ * direction : the radian angle of the coordinates from the world center. Add PI to get towards center.
+ *
+ * returned as {x,y,dir}
+ */
+function getOuterRimCoords(){
+    let direction = Math.random()*Math.PI*2;
+    let x = CENTER.x + Math.cos(direction) * randRange(WIDTH/2+100,WIDTH/2+200);
+    let y = CENTER.y + Math.sin(direction) * randRange(HEIGHT/2+100,HEIGHT/2+200);
+    return {x:x, y:y, dir:direction};
+}
 
 
 var asteroid_size_name = {3: "bigAsteroids", 2:"asteroids", 1:"smallAsteroids"};
@@ -116,8 +130,15 @@ function initializeWorld(world, scene){
     scene.physics.add.overlap(world.asteroids, world.worldBounds, world.respawnAsteroid, null, world);
 }
 
-world.spawnBullet = function spawnBullet(shooter){
-    let {x, y} = shooter.getCenter();
+// Factory Functions
+
+/**
+ * Shoots a bullet in the facing direction of {shooter}.
+ * @param {number} x - initial x position
+ * @param {number} y - initial y position
+ * @param {Ship} shooter - the ship that fired the bullet
+ */
+world.spawnBullet = function spawnBullet(x, y, shooter){
     let bullet = new Bullet({sargs:[this.scene, x, y, "plasmaBullet",0], owner:shooter});
     this.bullets.add(bullet);
 
@@ -127,34 +148,39 @@ world.spawnBullet = function spawnBullet(shooter){
     bullet.play("bullet");
 };
 
-    /** Get a point on the outer rim randomly.
-     * 
-     * x, y : the coordinates
-     * 
-     * direction : the radian angle of the coordinates from the world center. Add PI to get towards center.
-     */
-world.getOuterRimCoords = function getOuterRimCoords(){
-
-    let direction = Math.random()*Math.PI*2;
-    let x = CENTER.x + Math.cos(direction) * randRange(WIDTH/2+100,WIDTH/2+200);
-    let y = CENTER.y + Math.sin(direction) * randRange(HEIGHT/2+100,HEIGHT/2+200);
-    return {x:x, y:y, dir:direction};
-};
+/** Spawns an asteroid of size at location.
+ *  It is added to the "asteroids" physics group.
+ * @param {number} x - initial x position
+ * @param {number} y - initial y position
+ * @param {number} size - asteroid size
+ * @returns {Asteroid} The spawned asteroid.
+ */
+world.spawnAsteroid = function spawnAsteroid(x, y, size){
+    let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[size], 0],size:size});
+    this.asteroids.add(asteroid);
+    return asteroid;
+}
 
 /**Spawn an asteroid at a random location on the outer rim */
 world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
-    let {x,y, dir:direction} = this.getOuterRimCoords();
-    let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[size], 0],size:size});
-    this.asteroids.add(asteroid);
-    asteroid.launchAsteroid(60, direction + Math.PI, qRad);
+    let {x,y, dir:direction} = getOuterRimCoords();
+    let asteroid = world.spawnAsteroid(x, y, size);
+    asteroid.launchAsteroid(60+randRange(-20, 20), direction + Math.PI, qRad);
 };
 
+
+/**
+ * Collision event between asteroid and out-of-bounds rectangles.
+ * Repositions the colliding asteroid onto the outer rim and launches it in a new direction.
+ */
 world.respawnAsteroid = function respawnAsteroid(asteroid, bound){
-    let {x,y, dir:direction} = this.getOuterRimCoords();
+    let {x,y, dir:direction} = getOuterRimCoords();
     asteroid.setPosition(x, y);
-    asteroid.launchAsteroid(60, direction + Math.PI, qRad);
+    asteroid.launchAsteroid(60+randRange(-20, 20), direction + Math.PI, qRad);
 };
-
+/**
+ * Creates two smaller pieces of an asteroid if possible.
+ */
 world.splitAsteroid = function splitAsteroid(asteroid){
     let newSize = asteroid.size-1;
     if(newSize <= 0) return;
@@ -164,14 +190,10 @@ world.splitAsteroid = function splitAsteroid(asteroid){
 
     for(let i = 0; i < 2; i++){
         let {x:rx, y:ry} = Phaser.Math.RandomXY(new Phaser.Math.Vector2(),16);
-        let asteroid = new Asteroid({sargs:[this.scene, x+rx, y+ry, asteroid_size_name[newSize], 0],size:newSize});
-        this.asteroids.add(asteroid);
+        let asteroid = this.spawnAsteroid(x+rx, y+ry, newSize);
 
-        // Construct new velocity that is slightly faster and somewhat in the same direction
-        let newVel = new Phaser.Math.Vector2();
-        newVel.setToPolar(originalVel.angle()+randRange(-qRad, qRad), originalVel.length()* randRange(1.05, 1.3));
-        asteroid.setVelocity(newVel.x, newVel.y);
-        asteroid.setAngularVelocity(randRange(-60/newSize, 60/newSize)); // Smaller rotate faster
+        // Launch with velocity that is slightly faster and somewhat in the same direction
+        asteroid.launchAsteroid(originalVel.length() * randRange(1.05, 1.3), originalVel.angle(), qRad, 60/newSize);
     }
 };
 
@@ -183,7 +205,7 @@ function create ()
 
     console.log(this);
     console.log(world);
-    // world.groups.player = this.physics.group
+
     let inputKeys = {
         forward: this.input.keyboard.addKey('W'),
         left: this.input.keyboard.addKey('A'),
