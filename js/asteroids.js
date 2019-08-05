@@ -249,9 +249,9 @@ world.splitAsteroid = function splitAsteroid(asteroid){
         let asteroid = new Asteroid({sargs:[this.scene, x+rx, y+ry, asteroid_size_name[newSize], 0],size:newSize});
         this.asteroids.add(asteroid);
 
-        // Construct new velocity that is slightly slower and somewhat in the same direction
+        // Construct new velocity that is slightly faster and somewhat in the same direction
         let newVel = new Phaser.Math.Vector2();
-        newVel.setToPolar(originalVel.angle()+randRange(-qRad, qRad), originalVel.length()* 0.8);
+        newVel.setToPolar(originalVel.angle()+randRange(-qRad, qRad), originalVel.length()* randRange(1.05, 1.3));
         asteroid.setVelocity(newVel.x, newVel.y);
         asteroid.setAngularVelocity(randRange(-60/newSize, 60/newSize)); // Smaller rotate faster
     }
