@@ -3,6 +3,13 @@
 
 const WIDTH = 800;
 const HEIGHT = 600;
+const CENTER = {x: WIDTH/2, y: HEIGHT/2};
+
+
+function randRange(min, max){
+    return min + Math.random()*(max - min);
+}
+
 
 class Entity extends Phaser.Physics.Arcade.Sprite{
     constructor(scene,...args){
