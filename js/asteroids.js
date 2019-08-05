@@ -20,7 +20,7 @@ class Entity extends Phaser.Physics.Arcade.Sprite{
 }
 
 class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.3}){
+    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.2, reloadCooldown=0.8}){
         super(scene, x, y, texture, frame);
         this.score = 0;
         this.world = world;
@@ -32,6 +32,11 @@ class Ship extends Entity{
 
         this.fireCooldown = fireCooldown*1000; // Convert to milliseconds
         this.sinceFired = 0;
+        this.sinceReload = 0;
+        this.reloadCooldown = reloadCooldown*1000;
+        this.storedBullets = 10;
+        this.maxBullets = 10;
+
 
         this.turnVel = 180;
         this.acceleration = 120;
@@ -42,6 +47,7 @@ class Ship extends Entity{
         let acceleration = 0;
 
         this.sinceFired += delta;
+        this.sinceReload += delta;
 
         if(this.forward.isDown){
             this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));    
@@ -56,11 +62,22 @@ class Ship extends Entity{
         }
         this.setAngularVelocity(angularVel);
 
-        if(this.fire.isDown && this.sinceFired > this.fireCooldown){
+        if(this.sinceReload > this.reloadCooldown && this.storedBullets < this.maxBullets){
+            this.reload();
+            this.sinceReload = 0;
+        }
+
+        if(this.fire.isDown && this.sinceFired > this.fireCooldown && this.storedBullets > 0){
+            this.storedBullets -= 1;
             world.spawnBullet(this);
             this.sinceFired = 0;
         }
     }
+
+    reload(){
+        this.storedBullets += 1;
+    }
+
     facing(){
         return new Phaser.Math.Vector2(Math.sin(this.rotation), -Math.cos(this.rotation));
     }
@@ -136,6 +153,7 @@ function asteroidHit(bullet, asteroid){
     world.splitAsteroid(asteroid);
     console.log("Asteroid hit");
     bullet.owner.score += 1;
+    bullet.owner.reload();
     bullet.destroy();
     asteroid.destroy();
 }
