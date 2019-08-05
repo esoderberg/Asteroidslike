@@ -155,7 +155,29 @@ function initializeWorld(world, scene){
 
     world.ships = scene.physics.add.group();
     world.ships.runChildUpdate = true;
+
+
+    /** Calculate world bounds as offset from the center */
+    let rect_width = 5;
+    let offset = 300;
+    let left = CENTER.x-offset;
+    let right = CENTER.x + (offset-rect_width);
+    let top = CENTER.y-offset;
+    let bottom = CENTER.y + (offset-rect_width);
+    let wx = right-left;
+    let wy = bottom-top;
+
+    let middle_y = top + wy/2;
+    let middle_x = left + wx/2;
     
+    world.worldBounds = scene.physics.add.staticGroup();
+    //Rectangle x,y is the center
+    world.worldBounds.add(new Phaser.GameObjects.Rectangle(scene, middle_x, top, wx, rect_width)); // Top
+    world.worldBounds.add(new Phaser.GameObjects.Rectangle(scene, left, middle_y, rect_width, wy));// Left
+
+    world.worldBounds.add(new Phaser.GameObjects.Rectangle(scene, middle_x, bottom, wx, rect_width)); // Bottom
+    world.worldBounds.add(new Phaser.GameObjects.Rectangle(scene, right, middle_y, rect_width, wy)); // Right
+
     scene.physics.add.overlap(world.ships, world.asteroids, asteroidCollision);
     scene.physics.add.overlap(world.bullets, world.asteroids, asteroidHit);
 }
