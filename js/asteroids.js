@@ -193,7 +193,7 @@ world.spawnBullet = function spawnBullet(shooter){
 
     bullet.rotation = shooter.rotation;
     let {x:fx, y:fy} = shooter.facing();
-    bullet.setVelocity(300*fx, 300*fy);
+    bullet.setVelocity(300*fx+shooter.body.velocity.x, 300*fy+shooter.body.velocity.y);
     bullet.play("bullet");
 };
 
