@@ -21,6 +21,7 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet("plasmaBullet", "assets/PlasmaBullet.png",
             {frameWidth:8, frameHeight:8});
         this.load.image("ship", "assets/Ship.png");
+        this.load.image("engine", "assets/RadialGradientBlue.png");
     }
     create(data){
         this.WIDTH = this.game.config.width;
@@ -28,6 +29,9 @@ export class GameScene extends Phaser.Scene {
         this.CENTER = {x: this.WIDTH/2, y:this.HEIGHT/2};
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
+
+        this.trailParticles = this.add.particles('engine');
+        
 
         this.initializeWorld();
     
@@ -41,7 +45,7 @@ export class GameScene extends Phaser.Scene {
         this.ships.add(ship);
         ship.setDrag(0.99);
         ship.setDamping(true);
-        
+
         console.log(ship);
         this.physics.config.debug = false;
     }
@@ -70,6 +74,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.ships, this.asteroids, this.asteroidCollision, null, this);
         this.physics.add.overlap(this.bullets, this.asteroids, this.asteroidHit, null, this);
         this.physics.add.overlap(this.asteroids, this.worldBounds, this.respawnAsteroid, null, this);
+        this.physics.add.overlap(this.bullets, this.worldBounds, (bullet, _) => {bullet.destroy();});
     }
 
     initializeWorldBounds(){
@@ -109,6 +114,19 @@ export class GameScene extends Phaser.Scene {
         let {x:fx, y:fy} = shooter.facing();
         bullet.setVelocity(300*fx+shooter.body.velocity.x, 300*fy+shooter.body.velocity.y);
         bullet.play("bullet");
+
+        let trail = this.add.particles('engine');
+        let emitter = trail.createEmitter({
+            scale: {start: 0.2, end:0},
+            alpha: {start:1, end:0},
+            quantity:1,
+            lifespan: {min:200, max:500},
+            speed: {min:10 , max:50},
+            blendMode: "ADD",
+            follow:bullet,
+        });
+
+        bullet.on("destroy", () => trail.destroy());
     }
 
     /** Spawns an asteroid of size at location.
@@ -119,7 +137,7 @@ export class GameScene extends Phaser.Scene {
      * @returns {Asteroid} The spawned asteroid.
      */
     spawnAsteroid(x, y, size){
-        let asteroid = new Asteroid({sargs:[this, x, y, ASTEROID_SIZE_NAME[size], 0],size:size});
+        let asteroid = new Asteroid({sargs:[this, x, y, ASTEROID_SIZE_NAME[size], Math.round(Math.random()*2)],size:size});
         this.asteroids.add(asteroid);
         return asteroid;
     }

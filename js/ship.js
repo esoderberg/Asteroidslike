@@ -25,6 +25,19 @@ export class Ship extends Entity{
 
         this.turnVel = 180;
         this.acceleration = 120;
+       
+        this.emitter = scene.trailParticles.createEmitter({
+            scale: {start: 0.2, end:0},
+            alpha: {start:1, end:0},
+            x:0,y:0,
+            quantity:3,
+            lifespan: {min:400, max:700},
+            speed: {min:100, max:150},
+            blendMode: "ADD",
+            follow:this,
+        });
+        console.log(this.emitter);
+        this.emitter.stop();
 
     }
 
@@ -35,10 +48,16 @@ export class Ship extends Entity{
         this.sinceFired += delta;
         this.sinceReload += delta;
 
+        this.emitter.setAngle(90+this.angle);
+        this.emitter.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
+        this.emitter.followOffset.setToPolar(this.rotation+Math.PI/2, 8);
+
         if(this.forward.isDown){
-            this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));    
+            this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));
+            this.emitter.start();
         }else{
             this.setAcceleration(0,0);
+            this.emitter.stop();
         }
         if(this.left.isDown){
             angularVel += -this.turnVel;
