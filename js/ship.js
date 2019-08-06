@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
 import Entity from "./entity.js";
+import {StandardGun} from "./gunModule.js";
 
 export class Ship extends Entity{
     constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.2, reloadCooldown=0.8}){
@@ -11,6 +12,8 @@ export class Ship extends Entity{
         this.left = left;
         this.right = right;
         this.fire = fire;
+
+        this.gunModule = new StandardGun(10, 0.2, 0.8, this);
 
         this.fireCooldown = fireCooldown*1000; // Convert to milliseconds
         this.sinceFired = 0;
