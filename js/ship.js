@@ -23,7 +23,6 @@ export class Ship extends Entity{
         this.turnVel = 180;
         this.acceleration = 120;
 
-        this.scoreListeners = [];
     }
 
     update(time, delta){

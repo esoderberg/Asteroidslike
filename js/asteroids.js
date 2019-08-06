@@ -159,7 +159,7 @@ world.spawnAsteroid = function spawnAsteroid(x, y, size){
     let asteroid = new Asteroid({sargs:[this.scene, x, y, asteroid_size_name[size], 0],size:size});
     this.asteroids.add(asteroid);
     return asteroid;
-}
+};
 
 /**Spawn an asteroid at a random location on the outer rim */
 world.spawnRandomAsteroid = function spawnRandomAsteroid(size){
@@ -205,6 +205,7 @@ function create ()
 
     console.log(this);
     console.log(world);
+    console.log(game);
 
     let inputKeys = {
         forward: this.input.keyboard.addKey('W'),
