@@ -23,6 +23,8 @@ export class GameScene extends Phaser.Scene {
         this.load.image("ship", "assets/Ship.png");
         this.load.image("blue_orb", "assets/RadialGradientBlue.png");
         this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
+
+        this.load.audio("shot", "assets/audio/sfx_wpn_cannon1.wav");
     }
     create(data){
         this.WIDTH = this.game.config.width;
@@ -30,6 +32,8 @@ export class GameScene extends Phaser.Scene {
         this.CENTER = {x: this.WIDTH/2, y:this.HEIGHT/2};
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
+        this.bulletSound = this.sound.add("shot", {volume: 0.5});
+        console.log(this.bulletSound);
 
         this.trailParticles = this.add.particles('blue_orb');
         this.particles = {};
