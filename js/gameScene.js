@@ -21,7 +21,8 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet("plasmaBullet", "assets/PlasmaBullet.png",
             {frameWidth:8, frameHeight:8});
         this.load.image("ship", "assets/Ship.png");
-        this.load.image("engine", "assets/RadialGradientBlue.png");
+        this.load.image("blue_orb", "assets/RadialGradientBlue.png");
+        this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
     }
     create(data){
         this.WIDTH = this.game.config.width;
@@ -30,7 +31,21 @@ export class GameScene extends Phaser.Scene {
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
 
-        this.trailParticles = this.add.particles('engine');
+        this.trailParticles = this.add.particles('blue_orb');
+        this.particles = {};
+        let explosion = this.add.particles('particles');
+        this.particles.explosion = explosion;
+        let explosionConfig = {
+            frame: ["blue","red"],
+            scale: {start: 0.6, end:0},
+            quantity: 30,
+            alpha: {start:1, end:0},
+            lifespan: {min:500, max:1000},
+            speed: {min:120 , max:150},
+            frequency: -1,
+            blendMode: "ADD",
+        }
+        this.particles.explosion.ems = explosion.createEmitter(explosionConfig);
         
 
         this.initializeWorld();
@@ -45,7 +60,6 @@ export class GameScene extends Phaser.Scene {
         this.ships.add(ship);
         ship.setDrag(0.99);
         ship.setDamping(true);
-
         console.log(ship);
         this.physics.config.debug = false;
     }
@@ -115,7 +129,7 @@ export class GameScene extends Phaser.Scene {
         bullet.setVelocity(300*fx+shooter.body.velocity.x, 300*fy+shooter.body.velocity.y);
         bullet.play("bullet");
 
-        let trail = this.add.particles('engine');
+        let trail = this.add.particles('blue_orb');
         let emitter = trail.createEmitter({
             scale: {start: 0.2, end:0},
             alpha: {start:1, end:0},
@@ -168,6 +182,7 @@ export class GameScene extends Phaser.Scene {
         this.splitAsteroid(asteroid);
         bullet.owner.addScore(1);
         bullet.owner.reload();
+        this.particles.explosion.emitParticleAt(bullet.x, bullet.y);
         bullet.destroy();
         asteroid.destroy();
     }
