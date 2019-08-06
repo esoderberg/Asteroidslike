@@ -70,7 +70,7 @@ export class Ship extends Entity{
 
     addScore(score){
         this.score += score;
-        this.emit("score", this.score);
+        this.scene.registry.set('score', this.score);
     }
 
 }

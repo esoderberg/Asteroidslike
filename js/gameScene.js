@@ -8,7 +8,7 @@ import {randRange, QUARTRAD, ASTEROID_SIZE_NAME} from "./util.js";
 export class GameScene extends Phaser.Scene {
     constructor(config)
     {
-        super(config);
+        super("sceneGame");
     }
     
     preload(){
@@ -41,8 +41,8 @@ export class GameScene extends Phaser.Scene {
         this.ships.add(ship);
         ship.setDrag(0.99);
         ship.setDamping(true);
-        let scoreText = this.add.text(16,16,"Score: 0");
-        ship.on("score", (score) => {scoreText.setText("Score: "+ score);});
+        
+        console.log(ship);
         this.physics.config.debug = false;
     }
 
