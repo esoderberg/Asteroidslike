@@ -30,7 +30,6 @@ export class Ship extends Entity{
             blendMode: "ADD",
             follow:this,
         });
-        console.log(this.emitter);
         this.emitter.stop();
 
         this.spawner = (...args) => this.world.spawnBullet(...args);
@@ -63,9 +62,7 @@ export class Ship extends Entity{
             angularVel += this.turnVel;
         }
         this.setAngularVelocity(angularVel);
-        console.log(this.gunModule.canFire());
         if(this.gunModule.canFire() && this.fire.isDown){
-            console.log("FIRE");
             this.gunModule.fire({pos: this.getCenter(), rotation:this.rotation-Math.PI/2, speed:300, spawner: this.spawner });
             this.world.bulletSound.play();
         }
