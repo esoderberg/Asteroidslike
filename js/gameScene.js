@@ -209,7 +209,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     asteroidCollision(ship, asteroid){
-        ship.setPosition(this.WIDTH/2, this.HEIGHT/2);
+        if(ship.isVulnerable()){
+            ship.setPosition(this.WIDTH/2, this.HEIGHT/2);
+            ship.body.setVelocity(0,0);
+            ship.makeTempInvulnerable(3);
+        }
     }
 
     asteroidHit(bullet, asteroid){
