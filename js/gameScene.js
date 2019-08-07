@@ -153,13 +153,14 @@ export class GameScene extends Phaser.Scene {
      * @param {number} y - initial y position
      * @param {Ship} shooter - the ship that fired the bullet
      */
-    spawnBullet(x, y, shooter){
+    spawnBullet(x, y, rotation, speed, shooter){
         let bullet = new Bullet({sargs:[this, x, y, "plasmaBullet",0], owner:shooter});
         this.bullets.add(bullet);
 
         bullet.rotation = shooter.rotation;
-        let {x:fx, y:fy} = shooter.facing();
-        bullet.setVelocity(300*fx+shooter.body.velocity.x, 300*fy+shooter.body.velocity.y);
+        let baseVel = shooter.body.velocity;
+        let vel = new Phaser.Math.Vector2().setToPolar(rotation, speed);
+        bullet.setVelocity(baseVel.x + vel.x, baseVel.y + vel.y);
         bullet.play("bullet");
 
         let trail = this.add.particles('blue_orb');

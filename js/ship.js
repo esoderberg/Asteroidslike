@@ -1,9 +1,9 @@
 /*jshint esversion: 6 */
 import Entity from "./entity.js";
-import {StandardGun} from "./gunModule.js";
+import {StandardGun, TriGun} from "./gunModule.js";
 
 export class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}, fireCooldown=0.2, reloadCooldown=0.8}){
+    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}}){
         super(scene, x, y, texture, frame);
         this.score = 0;
         this.world = world;
@@ -13,14 +13,7 @@ export class Ship extends Entity{
         this.right = right;
         this.fire = fire;
 
-        this.gunModule = new StandardGun(10, 0.2, 0.8, this);
-
-        this.fireCooldown = fireCooldown*1000; // Convert to milliseconds
-        this.sinceFired = 0;
-        this.sinceReload = 0;
-        this.reloadCooldown = reloadCooldown*1000;
-        this.storedBullets = 10;
-        this.maxBullets = 10;
+        this.gunModule = new TriGun(10, 0.2, 0.8, this);
 
 
         this.turnVel = 180;
@@ -40,14 +33,15 @@ export class Ship extends Entity{
         console.log(this.emitter);
         this.emitter.stop();
 
+        this.spawner = (...args) => this.world.spawnBullet(...args);
+
     }
 
     update(time, delta){
         let angularVel = 0;
         let acceleration = 0;
 
-        this.sinceFired += delta;
-        this.sinceReload += delta;
+        this.gunModule.update(time, delta);
 
         this.emitter.setAngle(90+this.angle);
         this.emitter.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
@@ -69,22 +63,16 @@ export class Ship extends Entity{
             angularVel += this.turnVel;
         }
         this.setAngularVelocity(angularVel);
-
-        if(this.sinceReload > this.reloadCooldown && this.storedBullets < this.maxBullets){
-            this.reload();
-            this.sinceReload = 0;
-        }
-
-        if(this.fire.isDown && this.sinceFired > this.fireCooldown && this.storedBullets > 0){
-            this.storedBullets -= 1;
-            this.world.spawnBullet(this.getCenter().x, this.getCenter().y, this);
+        console.log(this.gunModule.canFire());
+        if(this.gunModule.canFire() && this.fire.isDown){
+            console.log("FIRE");
+            this.gunModule.fire({pos: this.getCenter(), rotation:this.rotation-Math.PI/2, speed:300, spawner: this.spawner });
             this.world.bulletSound.play();
-            this.sinceFired = 0;
         }
     }
 
     reload(){
-        this.storedBullets += 1;
+        this.gunModule.reload();
     }
 
     facing(){
