@@ -5,7 +5,15 @@ import {Asteroid} from "./asteroid.js";
 import {Bullet} from "./bullet.js";
 import {randRange, QUARTRAD, ASTEROID_SIZE_NAME} from "./util.js";
 
+let explosionAudio = [
+    // "sfx_exp_short_hard2.wav",
+    // "sfx_exp_short_hard6.wav",
+    "sfx_exp_short_soft1.wav",
+    "sfx_exp_short_soft10.wav",
+    "sfx_exp_short_soft5.wav"];
+
 export class GameScene extends Phaser.Scene {
+    
     constructor(config)
     {
         super("sceneGame");
@@ -25,7 +33,10 @@ export class GameScene extends Phaser.Scene {
         this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
 
         this.load.audio("shot", "assets/audio/sfx_wpn_cannon1.wav");
+        let audiopath = "assets/audio/";
+        explosionAudio.forEach((v,i) => this.load.audio("explosion_"+i, audiopath+v));
     }
+
     create(data){
         this.WIDTH = this.game.config.width;
         this.HEIGHT = this.game.config.height;
@@ -33,13 +44,14 @@ export class GameScene extends Phaser.Scene {
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
         this.bulletSound = this.sound.add("shot", {volume: 0.5});
-        console.log(this.bulletSound);
+        this.explosionSounds = [];
+        explosionAudio.forEach((v,i) => this.explosionSounds.push(this.sound.add("explosion_"+i)));
 
-        this.trailParticles = this.add.particles('blue_orb');
+        this.trailParticles = this.add.particles('particles');
         this.particles = {};
-        let explosion = this.add.particles('particles');
-        this.particles.explosion = explosion;
-        let explosionConfig = {
+        let particles = this.add.particles('particles');
+        particles.setDepth(10);
+        let bulletExplosionConfig = {
             frame: ["blue","red"],
             scale: {start: 0.6, end:0},
             quantity: 30,
@@ -48,8 +60,21 @@ export class GameScene extends Phaser.Scene {
             speed: {min:120 , max:150},
             frequency: -1,
             blendMode: "ADD",
-        }
-        this.particles.explosion.ems = explosion.createEmitter(explosionConfig);
+        };
+
+        let asteroidExplosionConfig = {
+            frame: ["white"],
+            scale: {start: 0.6, end:0},
+            quantity: 60,
+            alpha: {start:1, end:0},
+            lifespan: {min:300, max:600},
+            speed: {min:20 , max:150},
+            frequency: -1,
+            blendMode: "ADD",
+        };
+
+        this.particles.bulletImpact = particles.createEmitter(bulletExplosionConfig);
+        this.particles.asteroidExplode = particles.createEmitter(asteroidExplosionConfig);
         
 
         this.initializeWorld();
@@ -184,9 +209,12 @@ export class GameScene extends Phaser.Scene {
 
     asteroidHit(bullet, asteroid){
         this.splitAsteroid(asteroid);
+        this.particles.asteroidExplode.emitParticleAt(asteroid.x, asteroid.y, 10*asteroid.size);
+        this.explosionSounds[Math.floor(Math.random()*(this.explosionSounds.length-1))].play();
+
         bullet.owner.addScore(1);
         bullet.owner.reload();
-        this.particles.explosion.emitParticleAt(bullet.x, bullet.y);
+        // this.particles.bulletImpact.emitParticleAt(bullet.x, bullet.y);
         bullet.destroy();
         asteroid.destroy();
     }

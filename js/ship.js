@@ -27,6 +27,7 @@ export class Ship extends Entity{
         this.acceleration = 120;
        
         this.emitter = scene.trailParticles.createEmitter({
+            frame: ["red","orange"],
             scale: {start: 0.2, end:0},
             alpha: {start:1, end:0},
             x:0,y:0,
