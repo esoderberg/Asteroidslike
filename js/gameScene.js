@@ -32,6 +32,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image("blue_orb", "assets/RadialGradientBlue.png");
         this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
 
+        this.load.audio("engine", "assets/audio/engine.mp3");
         this.load.audio("shot", "assets/audio/sfx_wpn_cannon1.wav");
         let audiopath = "assets/audio/";
         explosionAudio.forEach((v,i) => this.load.audio("explosion_"+i, audiopath+v));
@@ -43,9 +44,9 @@ export class GameScene extends Phaser.Scene {
         this.CENTER = {x: this.WIDTH/2, y:this.HEIGHT/2};
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
-        this.bulletSound = this.sound.add("shot", {volume: 0.5});
+        this.bulletSound = this.sound.add("shot", {volume: 0.3});
         this.explosionSounds = [];
-        explosionAudio.forEach((v,i) => this.explosionSounds.push(this.sound.add("explosion_"+i)));
+        explosionAudio.forEach((v,i) => this.explosionSounds.push(this.sound.add("explosion_"+i, {volume: 0.3})));
 
         this.trailParticles = this.add.particles('particles');
         this.particles = {};
@@ -86,6 +87,9 @@ export class GameScene extends Phaser.Scene {
             fire: this.input.keyboard.addKey("Space")
         };
         let ship = new Ship({scene: this, x: this.CENTER.x, y: this.CENTER.y, texture: "ship", inputKeys: inputKeys, world:this});
+        ship.engineSound = this.sound.add("engine", {loop: true,volume:0.5});
+        ship.engineSound.play();
+        ship.engineSound.pause();
         this.ships.add(ship);
         ship.setDrag(0.99);
         ship.setDamping(true);

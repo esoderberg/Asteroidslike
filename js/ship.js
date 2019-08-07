@@ -56,9 +56,11 @@ export class Ship extends Entity{
         if(this.forward.isDown){
             this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));
             this.emitter.start();
+            this.engineSound.resume();
         }else{
             this.setAcceleration(0,0);
             this.emitter.stop();
+            this.engineSound.pause();
         }
         if(this.left.isDown){
             angularVel += -this.turnVel;
