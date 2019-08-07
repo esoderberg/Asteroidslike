@@ -12,6 +12,7 @@ export class Ship extends Entity{
         this.left = left;
         this.right = right;
         this.fire = fire;
+        this.vulnerable = true;
 
         this.gunModule = new TriGun(10, 0.2, 0.8, this);
 
@@ -79,6 +80,18 @@ export class Ship extends Entity{
     addScore(score){
         this.score += score;
         this.scene.registry.set('score', this.score);
+    }
+
+    isVulnerable(){ return this.vulnerable; }
+
+    makeTempInvulnerable(seconds){
+        this.vulnerable = false;
+        let blinkEvent = this.scene.time.addEvent({delay:200, callback: () => {this.setVisible(!this.visible);}, callbackScope: this, repeat:-1});
+        this.scene.time.delayedCall(seconds*1000, // delay is given in milliseconds
+            () => {
+                this.vulnerable = true;
+                blinkEvent.remove();
+                this.setVisible(true);}, null, this);
     }
 
 }
