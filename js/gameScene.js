@@ -97,12 +97,6 @@ export class GameScene extends Phaser.Scene {
         this.physics.config.debug = false;
     }
 
-    update(time, delta){
-        if(this.asteroids.getLength() < this.maxAsteroids){
-            this.spawnRandomAsteroid(3);
-        }
-    }
-
     initializeWorld(){
         this.maxAsteroids = 15;
     
@@ -147,6 +141,20 @@ export class GameScene extends Phaser.Scene {
         this.worldBounds.add(new Phaser.GameObjects.Rectangle(this, right, middle_y, rect_width, wy)); // Right
     }
 
+    /** Get a random point from the outer rim.
+     *
+     * x - x coordinate
+     * y - y coordinate
+     * direction : the radian angle of the coordinates from the world center. Add PI to get towards center.
+     *
+     * returned as {x,y,dir}
+     */
+    getOuterRimCoords(){
+        let direction = Math.random()*Math.PI*2;
+        let x = this.CENTER.x + Math.cos(direction) * randRange(this.WIDTH/2+100, this.WIDTH/2+200);
+        let y = this.CENTER.y + Math.sin(direction) * randRange(this.HEIGHT/2+100,this.HEIGHT/2+200);
+        return {x:x, y:y, dir:direction};
+    }
         /**
      * Shoots a bullet in the facing direction of {shooter}.
      * @param {number} x - initial x position
@@ -246,18 +254,10 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    /** Get a random point from the outer rim.
-     *
-     * x - x coordinate
-     * y - y coordinate
-     * direction : the radian angle of the coordinates from the world center. Add PI to get towards center.
-     *
-     * returned as {x,y,dir}
-     */
-    getOuterRimCoords(){
-        let direction = Math.random()*Math.PI*2;
-        let x = this.CENTER.x + Math.cos(direction) * randRange(this.WIDTH/2+100, this.WIDTH/2+200);
-        let y = this.CENTER.y + Math.sin(direction) * randRange(this.HEIGHT/2+100,this.HEIGHT/2+200);
-        return {x:x, y:y, dir:direction};
+    update(time, delta){
+        this.physics.world.wrap(this.ships);
+        if(this.asteroids.getLength() < this.maxAsteroids){
+            this.spawnRandomAsteroid(3);
+        }
     }
 }
