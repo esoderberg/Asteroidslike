@@ -115,6 +115,7 @@ export class Ship extends Entity{
 
     respawn(x,y){
         this.setActive(true).setVisible(true);
+        this.setRotation(0);
         this.setPosition(x,y);
         this.body.setVelocity(0,0);
         this.makeTempInvulnerable(3);
