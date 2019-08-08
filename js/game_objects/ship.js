@@ -26,7 +26,7 @@ export class Ship extends Entity{
         this.turnVel = 180;
         this.acceleration = 120;
        
-        this.emitter = this.scene.trailParticles.createEmitter({
+        this.engine = this.scene.trailParticles.createEmitter({
             frame: ["red","orange"],
             scale: {start: 0.2, end:0},
             alpha: {start:1, end:0},
@@ -37,7 +37,7 @@ export class Ship extends Entity{
             blendMode: "ADD",
             follow:this,
         });
-        this.emitter.stop();
+        this.engine.stop();
 
         this.spawner = (...args) => this.scene.spawnBullet(...args);
 
@@ -49,17 +49,17 @@ export class Ship extends Entity{
 
         this.gunModule.update(time, delta);
 
-        this.emitter.setAngle(90+this.angle);
-        this.emitter.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
-        this.emitter.followOffset.setToPolar(this.rotation+Math.PI/2, 8);
+        this.engine.setAngle(90+this.angle);
+        this.engine.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
+        this.engine.followOffset.setToPolar(this.rotation+Math.PI/2, 8);
 
         if(this.forward.isDown){
             this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));
-            this.emitter.start();
+            this.engine.start();
             this.engineSound.resume();
         }else{
             this.setAcceleration(0,0);
-            this.emitter.stop();
+            this.engine.stop();
             this.engineSound.pause();
         }
         if(this.left.isDown){
@@ -92,9 +92,12 @@ export class Ship extends Entity{
     }
 
     kill(){
+        this.vulnerable = false;
         this.lives -= 1;
         this.scene.registry.set('playerLives', this.lives);
+        this.engine.stop();
         this.emit("ship_death");
+        this.setActive(false).setVisible(false);
     }
 
     isVulnerable(){ return this.vulnerable; }
@@ -110,6 +113,7 @@ export class Ship extends Entity{
     }
 
     respawn(x,y){
+        this.setActive(true).setVisible(true);
         this.setPosition(x,y);
         this.body.setVelocity(0,0);
         this.makeTempInvulnerable(3);

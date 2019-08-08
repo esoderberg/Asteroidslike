@@ -79,7 +79,7 @@ export class GameScene extends Phaser.Scene {
             blendMode: "ADD",
         };
         
-        let asteroidExplosionConfig = {
+        let shipExplosionConfig = {
             frame: ["white","red","orange"],
             scale: {start: 0.6, end:0},
             quantity: 60,
@@ -114,7 +114,8 @@ export class GameScene extends Phaser.Scene {
             inputKeys: inputKeys});
         
         let deathSound = this.sound.add("ship_explode", {volume:0.5});
-        ship.on("ship_death", () => {deathSound.play();});
+        deathSound.on("complete", () => ship.respawn(this.WIDTH/2, this.HEIGHT/2));
+        ship.on("ship_death", () => {deathSound.play(); this.particles.shipExplode.emitParticleAt(ship.x, ship.y);});
         ship.engineSound = this.sound.add("engine", {loop: true,volume:0.5});
         ship.engineSound.play();
         ship.engineSound.pause();
