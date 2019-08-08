@@ -24,9 +24,12 @@ export class GameOverScene extends Phaser.Scene {
         playText.setInteractive();
         playText.on("pointerdown", () => {playText.setColor("gray"); this.startGame();});
         playText.on("pointerup", () => {playText.setColor("white");});
+        this.backgroundSound = this.sound.add("background", {volume:0.5,loop:true});
+        this.backgroundSound.play();
     }
     
     startGame(){
+        this.sound.stopAll();
         this.scene.start("sceneGame");
         console.log(this);
     }

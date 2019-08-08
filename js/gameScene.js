@@ -225,8 +225,7 @@ export class GameScene extends Phaser.Scene {
         if(ship.isVulnerable()){
             ship.kill();
             if(ship.lives < 0){
-                console.log("player dead");
-                this.scene.start("sceneGameOver", {"score":ship.score});
+                this.gameOver(ship.score);
             }
             ship.setPosition(this.WIDTH/2, this.HEIGHT/2);
             ship.body.setVelocity(0,0);
@@ -262,6 +261,12 @@ export class GameScene extends Phaser.Scene {
             // Launch with velocity that is slightly faster and somewhat in the same direction
             asteroid.launchAsteroid(originalVel.length() * randRange(1.05, 1.3), originalVel.angle(), QUARTRAD, 60/newSize);
         }
+    }
+
+    gameOver(score){
+        let data = {score:score};
+        this.sound.stopAll();
+        this.scene.start("sceneGameOver", data);
     }
 
     update(time, delta){
