@@ -14,10 +14,10 @@ var config = {
     width: WIDTH,
     height: HEIGHT,
     // Fills whole screen
-    // scale: {
-    //     mode: Phaser.Scale.RESIZE,
-    //     autoCenter: Phaser.Scale.CENTER_BOTH
-    //   },
+    scale: {
+        // mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+      },
     physics: {
         default: 'arcade',
         arcade: {
