@@ -114,8 +114,18 @@ export class GameScene extends Phaser.Scene {
             inputKeys: inputKeys});
         
         let deathSound = this.sound.add("ship_explode", {volume:0.5});
-        deathSound.on("complete", () => ship.respawn(this.WIDTH/2, this.HEIGHT/2));
-        ship.on("ship_death", () => {deathSound.play(); this.particles.shipExplode.emitParticleAt(ship.x, ship.y);});
+        deathSound.on("complete", () =>
+        {
+            if(ship.lives < 0){
+                this.gameOver(ship.score);
+            }else{
+                ship.respawn(this.WIDTH/2, this.HEIGHT/2);
+            }
+        });
+        ship.on("ship_death", () => {
+            deathSound.play();
+            this.particles.shipExplode.emitParticleAt(ship.x, ship.y);
+        });
         ship.engineSound = this.sound.add("engine", {loop: true,volume:0.5});
         ship.engineSound.play();
         ship.engineSound.pause();
@@ -259,9 +269,6 @@ export class GameScene extends Phaser.Scene {
     asteroidCollision(ship, asteroid){
         if(ship.isVulnerable()){
             ship.kill();
-            if(ship.lives < 0){
-                this.gameOver(ship.score);
-            }
         }
     }
 
