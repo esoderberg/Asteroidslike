@@ -135,7 +135,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     initializeWorld(){
-        this.maxAsteroids = 15;
+        this.maxAsteroids = 8;
     
         // Sets up scene physics
         this.asteroids = this.physics.add.group();
@@ -310,8 +310,11 @@ export class GameScene extends Phaser.Scene {
 
     update(time, delta){
         this.physics.world.wrap(this.ships);
-        if(this.asteroids.getLength() < this.maxAsteroids){
-            this.spawnRandomAsteroid(3);
+        if(this.asteroids.getLength() <= 0){
+            this.maxAsteroids += 2;
+            for (let i = 0; i < this.maxAsteroids; i++) {
+                this.spawnRandomAsteroid(3);
+            }
         }
     }
 }
