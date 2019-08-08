@@ -40,6 +40,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(data){
+
         this.WIDTH = this.game.config.width;
         this.HEIGHT = this.game.config.height;
         this.CENTER = {x: this.WIDTH/2, y:this.HEIGHT/2};
@@ -222,6 +223,11 @@ export class GameScene extends Phaser.Scene {
 
     asteroidCollision(ship, asteroid){
         if(ship.isVulnerable()){
+            ship.kill();
+            if(ship.lives < 0){
+                console.log("player dead");
+                this.scene.start("sceneGameOver", {"score":ship.score});
+            }
             ship.setPosition(this.WIDTH/2, this.HEIGHT/2);
             ship.body.setVelocity(0,0);
             ship.makeTempInvulnerable(3);

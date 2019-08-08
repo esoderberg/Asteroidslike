@@ -5,7 +5,10 @@ import {StandardGun, TriGun} from "./gunModule.js";
 export class Ship extends Entity{
     constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}}){
         super(scene, x, y, texture, frame);
+
         this.score = 0;
+        this.lives = 0;
+        this.scene.registry.set('playerLives', this.lives);
         this.world = world;
         // Bindings for input
         this.forward = forward;
@@ -80,6 +83,11 @@ export class Ship extends Entity{
     addScore(score){
         this.score += score;
         this.scene.registry.set('score', this.score);
+    }
+
+    kill(){
+        this.lives -= 1;
+        this.scene.registry.set('playerLives', this.lives);
     }
 
     isVulnerable(){ return this.vulnerable; }
