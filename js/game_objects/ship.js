@@ -20,7 +20,7 @@ export class Ship extends Entity{
         this.fire = fire;
         this.vulnerable = true;
 
-        this.gunModule = new TriGun(10, 0.2, 0.8, this);
+        this.gunModule = new StandardGun(this, 5, 0.2, 0.8);
 
 
         this.turnVel = 180;
@@ -69,18 +69,19 @@ export class Ship extends Entity{
             angularVel += this.turnVel;
         }
         this.setAngularVelocity(angularVel);
+
         if(this.fire.isDown){
-            this.gunModule.holdTrigger();
+            this.gunModule.setTriggerHeld(true);
+        }else{
+            this.gunModule.setTriggerHeld(false);
         }
-        // if(this.gunModule.canFire() && this.fire.isDown){
-        //     this.gunModule.fire({pos: this.getCenter(), rotation:this.rotation-Math.PI/2, speed:300, spawner: this.spawner });
-        //     this.world.bulletSound.play();
-        // }
     }
 
     reload(){
         this.gunModule.reload();
     }
+
+    get rotForward() { return this.rotation-Math.PI/2;}
 
     facing(){
         return new Phaser.Math.Vector2(Math.sin(this.rotation), -Math.cos(this.rotation));
