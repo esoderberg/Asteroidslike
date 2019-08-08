@@ -18,6 +18,7 @@ class GunModule{
         this.sinceFired = 0;
         this.sinceRegen = 0;
         this.storedBullets = maxBullets;
+        this.scene.registry.set("shots",this.storedBullets);
         this.maxBullets = maxBullets;
         this.triggerHeld = false;
     }
@@ -34,9 +35,14 @@ class GunModule{
     setTriggerHeld(isHeld){
         this.triggered = isHeld;
     }
+    spendBullet(){
+        this.storedBullets = Math.max(this.storedBullets-1, 0);
+        this.scene.registry.values.shots = this.storedBullets;
+    }
 
     reload(){
         this.storedBullets = Math.min(this.storedBullets+1, this.maxBullets);
+        this.scene.registry.values.shots = this.storedBullets;
     }
 }
 
@@ -54,7 +60,7 @@ export class StandardGun extends GunModule{
 
     /** */
     fire({pos:{x, y}, rotation, speed}){
-        this.storedBullets -= 1;
+        this.spendBullet();
         this.scene.spawnBullet(x,y, rotation, speed, this.owner);
         this.scene.bulletSound.play();
         this.sinceFired = 0;
@@ -77,7 +83,7 @@ export class TriGun extends GunModule{
 
     /** */
     fire({pos:{x, y}, rotation, speed}){
-        this.storedBullets -= 1;
+        this.spendBullet();
         for(let i = 0; i < 3; i++){
             this.scene.spawnBullet(x,y, rotation-(1*Math.PI/8)+(i*Math.PI/8), speed, this.owner);
             this.scene.bulletSound.play();
