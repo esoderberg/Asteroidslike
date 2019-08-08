@@ -17,7 +17,7 @@ export class UiScene extends Phaser.Scene {
         this.lives = [];
         let baseX = this.game.config.width;
         // Add in reverse order to make it look better when popping off lives.
-        for (let i = 0; i < this.registry.playerLives; i++) {
+        for (let i = 0; i < this.registry.values.playerLives; i++) {
             let img = this.add.image(baseX - 32 - i*(32+8), 24,"ship");
             this.lives.push(img);
         }
