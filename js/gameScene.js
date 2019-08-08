@@ -119,10 +119,7 @@ export class GameScene extends Phaser.Scene {
         ship.engineSound = this.sound.add("engine", {loop: true,volume:0.5});
         ship.engineSound.play();
         ship.engineSound.pause();
-        // this.ships.add(ship);
-        // ship.setDrag(0.99);
-        // ship.setDamping(true);
-        console.log(ship);
+        
         this.physics.config.debug = false;
         this.scene.launch("sceneUI");
     }
@@ -200,7 +197,6 @@ export class GameScene extends Phaser.Scene {
                 texture:"plasmaBullet",
                 frame:0},
             owner:shooter});
-        // this.bullets.add(bullet);
 
         bullet.rotation = shooter.rotation;
         let baseVel = shooter.body.velocity;
