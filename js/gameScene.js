@@ -32,6 +32,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image("blue_orb", "assets/RadialGradientBlue.png");
         this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
 
+        this.load.audio("background", "assets/audio/background.wav");
         this.load.audio("engine", "assets/audio/engine.mp3");
         this.load.audio("shot", "assets/audio/sfx_wpn_cannon1.wav");
         let audiopath = "assets/audio/";
@@ -44,6 +45,8 @@ export class GameScene extends Phaser.Scene {
         this.CENTER = {x: this.WIDTH/2, y:this.HEIGHT/2};
         
         this.anims.create({key:"bullet", frames: this.anims.generateFrameNumbers("plasmaBullet",{start:0, end:6}), frameRate: 12, repeat:-1});
+        this.backgroundSound = this.sound.add("background", {volume:0.5,loop:true});
+        this.backgroundSound.play();
         this.bulletSound = this.sound.add("shot", {volume: 0.3});
         this.explosionSounds = [];
         explosionAudio.forEach((v,i) => this.explosionSounds.push(this.sound.add("explosion_"+i, {volume: 0.3})));
