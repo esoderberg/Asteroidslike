@@ -98,6 +98,7 @@ export class GameScene extends Phaser.Scene {
         ship.setDamping(true);
         console.log(ship);
         this.physics.config.debug = false;
+        this.scene.launch("sceneUI");
     }
 
     initializeWorld(){

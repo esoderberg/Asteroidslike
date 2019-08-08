@@ -3,7 +3,7 @@
 export class UiScene extends Phaser.Scene {
     constructor(config)
     {
-        super({key:"SceneUI", active:true});
+        super("sceneUI");
     }
     preload(){
 
