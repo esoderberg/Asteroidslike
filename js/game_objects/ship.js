@@ -1,7 +1,6 @@
 /*jshint esversion: 6 */
 import Entity from "./entity.js";
 import {StandardGun, TriGun} from "./gunModule.js";
-import { Physics } from "phaser";
 
 export class Ship extends Entity{
     /**
