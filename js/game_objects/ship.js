@@ -3,8 +3,11 @@ import Entity from "./entity.js";
 import {StandardGun, TriGun} from "./gunModule.js";
 
 export class Ship extends Entity{
-    constructor({scene, x, y, texture, frame, world,  inputKeys:{forward, left, right, fire}}){
-        super(scene, x, y, texture, frame);
+    constructor({sargs, world,  inputKeys:{forward, left, right, fire}}){
+        super(sargs);
+        
+        this.setDrag(0.99);
+        this.setDamping(true);
 
         this.score = 0;
         this.lives = 3;
@@ -23,7 +26,7 @@ export class Ship extends Entity{
         this.turnVel = 180;
         this.acceleration = 120;
        
-        this.emitter = scene.trailParticles.createEmitter({
+        this.emitter = this.scene.trailParticles.createEmitter({
             frame: ["red","orange"],
             scale: {start: 0.2, end:0},
             alpha: {start:1, end:0},
@@ -36,7 +39,7 @@ export class Ship extends Entity{
         });
         this.emitter.stop();
 
-        this.spawner = (...args) => this.world.spawnBullet(...args);
+        this.spawner = (...args) => this.scene.spawnBullet(...args);
 
     }
 
@@ -66,10 +69,13 @@ export class Ship extends Entity{
             angularVel += this.turnVel;
         }
         this.setAngularVelocity(angularVel);
-        if(this.gunModule.canFire() && this.fire.isDown){
-            this.gunModule.fire({pos: this.getCenter(), rotation:this.rotation-Math.PI/2, speed:300, spawner: this.spawner });
-            this.world.bulletSound.play();
+        if(this.fire.isDown){
+            this.gunModule.holdTrigger();
         }
+        // if(this.gunModule.canFire() && this.fire.isDown){
+        //     this.gunModule.fire({pos: this.getCenter(), rotation:this.rotation-Math.PI/2, speed:300, spawner: this.spawner });
+        //     this.world.bulletSound.play();
+        // }
     }
 
     reload(){
@@ -88,6 +94,7 @@ export class Ship extends Entity{
     kill(){
         this.lives -= 1;
         this.scene.registry.set('playerLives', this.lives);
+        this.emit("ship_death");
     }
 
     isVulnerable(){ return this.vulnerable; }
@@ -102,4 +109,9 @@ export class Ship extends Entity{
                 this.setVisible(true);}, null, this);
     }
 
+    respawn(x,y){
+        this.setPosition(x,y);
+        this.body.setVelocity(0,0);
+        this.makeTempInvulnerable(3);
+    }
 }

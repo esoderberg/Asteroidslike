@@ -3,7 +3,7 @@ import Entity from "./entity.js";
 
 export class Bullet extends Entity{
     constructor({sargs, owner}){
-        super(...sargs);
+        super(sargs);
         this.owner = owner;
     }
 }

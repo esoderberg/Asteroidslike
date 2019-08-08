@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 
-import {Ship} from "./ship.js";
-import {Asteroid} from "./asteroid.js";
-import {Bullet} from "./bullet.js";
+import {Ship} from "./game_objects/ship.js";
+import {Asteroid} from "./game_objects/asteroid.js";
+import {Bullet} from "./game_objects/bullet.js";
 import {randRange, QUARTRAD, ASTEROID_SIZE_NAME} from "./util.js";
 
 let explosionAudio = [
@@ -33,6 +33,7 @@ export class GameScene extends Phaser.Scene {
         this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
 
         this.load.audio("background", "assets/audio/background.wav");
+        this.load.audio("ship_explode", "assets/audio/sfx_exp_medium11.wav");
         this.load.audio("engine", "assets/audio/engine.mp3");
         this.load.audio("shot", "assets/audio/sfx_wpn_cannon1.wav");
         let audiopath = "assets/audio/";
@@ -77,9 +78,21 @@ export class GameScene extends Phaser.Scene {
             frequency: -1,
             blendMode: "ADD",
         };
+        
+        let asteroidExplosionConfig = {
+            frame: ["white","red","orange"],
+            scale: {start: 0.6, end:0},
+            quantity: 60,
+            alpha: {start:1, end:0},
+            lifespan: {min:300, max:600},
+            speed: {min:20 , max:150},
+            frequency: -1,
+            blendMode: "ADD",
+        };
 
         this.particles.bulletImpact = particles.createEmitter(bulletExplosionConfig);
         this.particles.asteroidExplode = particles.createEmitter(asteroidExplosionConfig);
+        this.particles.shipExplode = particles.createEmitter(shipExplosionConfig);
         
 
         this.initializeWorld();
@@ -90,13 +103,24 @@ export class GameScene extends Phaser.Scene {
             right: this.input.keyboard.addKey("D"),
             fire: this.input.keyboard.addKey("Space")
         };
-        let ship = new Ship({scene: this, x: this.CENTER.x, y: this.CENTER.y, texture: "ship", inputKeys: inputKeys, world:this});
+
+        let ship = new Ship({
+            sargs:{
+                scene: this,
+                group: this.ships,
+                x: this.CENTER.x,
+                y: this.CENTER.y,
+                texture: "ship"},
+            inputKeys: inputKeys});
+        
+        let deathSound = this.sound.add("ship_explode", {volume:0.5});
+        ship.on("ship_death", () => {deathSound.play();});
         ship.engineSound = this.sound.add("engine", {loop: true,volume:0.5});
         ship.engineSound.play();
         ship.engineSound.pause();
-        this.ships.add(ship);
-        ship.setDrag(0.99);
-        ship.setDamping(true);
+        // this.ships.add(ship);
+        // ship.setDrag(0.99);
+        // ship.setDamping(true);
         console.log(ship);
         this.physics.config.debug = false;
         this.scene.launch("sceneUI");
@@ -167,8 +191,15 @@ export class GameScene extends Phaser.Scene {
      * @param {Ship} shooter - the ship that fired the bullet
      */
     spawnBullet(x, y, rotation, speed, shooter){
-        let bullet = new Bullet({sargs:[this, x, y, "plasmaBullet",0], owner:shooter});
-        this.bullets.add(bullet);
+        let bullet = new Bullet({
+            sargs:{
+                scene:this,
+                group: this.bullets,
+                x:x, y:y,
+                texture:"plasmaBullet",
+                frame:0},
+            owner:shooter});
+        // this.bullets.add(bullet);
 
         bullet.rotation = shooter.rotation;
         let baseVel = shooter.body.velocity;
@@ -198,8 +229,15 @@ export class GameScene extends Phaser.Scene {
      * @returns {Asteroid} The spawned asteroid.
      */
     spawnAsteroid(x, y, size){
-        let asteroid = new Asteroid({sargs:[this, x, y, ASTEROID_SIZE_NAME[size], Math.round(Math.random()*2)],size:size});
-        this.asteroids.add(asteroid);
+        let asteroid = new Asteroid(
+            {
+                sargs:{
+                    scene:this,
+                    group:this.asteroids,
+                    x:x, y:y,
+                    texture:ASTEROID_SIZE_NAME[size],
+                    frame:Math.round(Math.random()*2)},
+                size:size});
         return asteroid;
     }
 
@@ -227,9 +265,6 @@ export class GameScene extends Phaser.Scene {
             if(ship.lives < 0){
                 this.gameOver(ship.score);
             }
-            ship.setPosition(this.WIDTH/2, this.HEIGHT/2);
-            ship.body.setVelocity(0,0);
-            ship.makeTempInvulnerable(3);
         }
     }
 
