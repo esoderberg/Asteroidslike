@@ -7,7 +7,7 @@ export class Ship extends Entity{
         super(scene, x, y, texture, frame);
 
         this.score = 0;
-        this.lives = 0;
+        this.lives = 3;
         this.scene.registry.set('playerLives', this.lives);
         this.world = world;
         // Bindings for input
