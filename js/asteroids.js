@@ -4,6 +4,8 @@
 
 import {GameScene} from "./gameScene.js";
 import {UiScene} from "./uiScene.js";
+import {MenuScene} from "./menuScene.js";
+import {GameOverScene} from "./gameOverScene.js";
 const WIDTH = 800;
 const HEIGHT = 600;
 
@@ -23,7 +25,7 @@ var config = {
             gravity: false
         }
     },
-    scene: [GameScene,UiScene]
+    scene: [MenuScene, GameScene, UiScene, GameOverScene]
 };
 
 var game = new Phaser.Game(config);
