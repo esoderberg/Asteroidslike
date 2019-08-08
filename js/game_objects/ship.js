@@ -20,7 +20,7 @@ export class Ship extends Entity{
         this.fire = fire;
         this.vulnerable = true;
 
-        this.gunModule = new StandardGun(this, 5, 0.2, 0.8);
+        this.gunModule = new StandardGun(this, 5, 0.2, 1.5);
 
 
         this.turnVel = 180;
