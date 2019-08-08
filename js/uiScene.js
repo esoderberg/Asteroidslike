@@ -6,7 +6,6 @@ export class UiScene extends Phaser.Scene {
         super("sceneUI");
     }
     preload(){
-        this.load.image("ship", "assets/Ship.png");
     }
 
     create(){
