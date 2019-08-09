@@ -30,7 +30,7 @@ export class GameScene extends Phaser.Scene {
             {frameWidth:8, frameHeight:8});
         this.load.image("ship", "assets/Ship.png");
         this.load.image("blue_orb", "assets/RadialGradientBlue.png");
-        this.load.atlas("particles", "assets/particles.png", "assets/particles.json");
+        this.load.atlas("particles", "assets/particles.png", "assets/particle_orbs.json");
 
         this.load.audio("background", "assets/audio/background.wav");
         this.load.audio("ship_explode", "assets/audio/sfx_exp_medium11.wav");
