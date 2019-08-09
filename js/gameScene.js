@@ -305,6 +305,7 @@ export class GameScene extends Phaser.Scene {
     gameOver(score){
         let data = {score:score};
         this.sound.stopAll();
+        this.scene.stop("sceneUI");
         this.scene.start("sceneGameOver", data);
     }
 
