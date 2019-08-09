@@ -22,7 +22,7 @@ export class GameOverScene extends Phaser.Scene {
 
         let highScore = localStorage.getItem("high_score");
         let highScoreText;
-        if(highScore > data.score){
+        if(highScore >= data.score){
             highScoreText = this.add.text(cx, cy-50, "High Score: " + highScore,{fontSize: 32});
         }else{
             highScoreText = this.add.text(cx, cy-50, "New High Score!",{fontSize: 32});
