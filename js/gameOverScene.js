@@ -39,8 +39,8 @@ export class GameOverScene extends Phaser.Scene {
         let playText = this.add.text(cx, cy+80, "Play Again",{fontSize: 32});
         playText.setOrigin(0.5,0.5);
         playText.setInteractive();
-        playText.on("pointerdown", () => {playText.setColor("gray"); this.startGame();});
-        playText.on("pointerup", () => {playText.setColor("white");});
+        playText.on("pointerdown", () => {playText.setColor("gray"); });
+        playText.on("pointerup", () => {playText.setColor("white");this.startGame();});
         this.backgroundSound = this.sound.add("background", {volume:0.5,loop:true});
         this.backgroundSound.play();
     }
@@ -48,6 +48,5 @@ export class GameOverScene extends Phaser.Scene {
     startGame(){
         this.sound.stopAll();
         this.scene.start("sceneGame");
-        console.log(this);
     }
 }
