@@ -28,7 +28,7 @@ export class Ship extends Entity{
         this._lives = 0;
 
         this.score = 0;
-        this.lives = 0;
+        this.lives = 3;
         this.vulnerable = true;
 
         // Bindings for input
