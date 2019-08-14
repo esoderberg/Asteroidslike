@@ -28,7 +28,7 @@ export class GameScene extends Phaser.Scene {
             {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet("plasmaBullet", "assets/PlasmaBullet.png",
             {frameWidth:8, frameHeight:8});
-        this.load.image("ship", "assets/Ship.png");
+        this.load.image("ship", "assets/Ship-2.png");
         this.load.image("blue_orb", "assets/RadialGradientBlue.png");
         this.load.atlas("particles", "assets/particles.png", "assets/particle_orbs.json");
 
@@ -53,7 +53,7 @@ export class GameScene extends Phaser.Scene {
         this.explosionSounds = [];
         explosionAudio.forEach((v,i) => this.explosionSounds.push(this.sound.add("explosion_"+i, {volume: 0.3})));
 
-        this.trailParticles = this.add.particles('particles');
+
         this.particles = {};
         let particles = this.add.particles('particles');
         particles.setDepth(10);
@@ -112,6 +112,7 @@ export class GameScene extends Phaser.Scene {
                 y: this.CENTER.y,
                 texture: "ship"},
             inputKeys: inputKeys});
+        ship.setRotation(ship.rotLeft);
         
         let deathSound = this.sound.add("ship_explode", {volume:0.5});
         deathSound.on("complete", () =>
@@ -277,7 +278,7 @@ export class GameScene extends Phaser.Scene {
         this.particles.asteroidExplode.emitParticleAt(asteroid.x, asteroid.y, 10*asteroid.size);
         this.explosionSounds[Math.floor(Math.random()*(this.explosionSounds.length-1))].play();
 
-        bullet.owner.addScore(1);
+        bullet.owner.score += 1;
         bullet.owner.reload();
         // this.particles.bulletImpact.emitParticleAt(bullet.x, bullet.y);
         bullet.destroy();

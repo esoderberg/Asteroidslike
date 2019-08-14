@@ -14,27 +14,35 @@ export class Ship extends Entity{
      */
     constructor({sargs, inputKeys:{forward, left, right, fire}}){
         super(sargs);
-        
+
+        // Physics settings
         this.setDrag(0.99);
         this.setDamping(true);
 
+        // Speed settings
+        this.turnVel = 180;
+        this.acceleration = 120;
+
+        // Backing property fields
+        this._score = 0;
+        this._lives = 0;
+
         this.score = 0;
-        this.lives = 3;
-        this.scene.registry.set('playerLives', this.lives);
-        // Bindings for input
-        this.forward = forward;
-        this.left = left;
-        this.right = right;
-        this.fire = fire;
+        this.lives = 0;
         this.vulnerable = true;
+
+        // Bindings for input
+        this.forwardKey = forward;
+        this.leftKey = left;
+        this.rightKey = right;
+        this.fireKey = fire;
 
         this.gunModule = new StandardGun(this, 5, 0.2, 1.5);
 
+        // Create particle system for engine trail
 
-        this.turnVel = 180;
-        this.acceleration = 120;
-       
-        this.engine = this.scene.trailParticles.createEmitter({
+        this.particles = this.scene.add.particles('particles');
+        this.engine = this.particles.createEmitter({
             frame: ["red","orange"],
             scale: {start: 0.2, end:0},
             alpha: {start:1, end:0},
@@ -45,24 +53,38 @@ export class Ship extends Entity{
             blendMode: "ADD",
             follow:this,
         });
-        this.engine.stop();
+    }
 
-        this.spawner = (...args) => this.scene.spawnBullet(...args);
+    get lives(){
+        return this._lives;
+    }
+    set lives(value){
+        this._lives = value;
+        this.scene.registry.set('playerLives', this._lives);
+    }
 
+    get score(){
+        return this._score;
+    }
+
+    set score(value){
+        this._score = value;
+        console.log(this.scene, this.scene.registry);
+        this.scene.registry.set('score', this._score);
     }
 
     update(time, delta){
         let angularVel = 0;
-        let acceleration = 0;
 
         this.gunModule.update(time, delta);
 
-        this.engine.setAngle(90+this.angle);
-        this.engine.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
-        this.engine.followOffset.setToPolar(this.rotation+Math.PI/2, 8);
+        if(this.forwardKey.isDown){
+            // Ensure that the engine particle system is correctly set up
+            this.engine.setAngle(this.angleBack);
+            this.engine.setSpeed({min:100+this.body.velocity.length(), max:150+this.body.velocity.length()});
+            this.engine.followOffset.setToPolar(this.rotBack, 8);
 
-        if(this.forward.isDown){
-            this.setAcceleration(this.acceleration*Math.sin(this.rotation), -this.acceleration*Math.cos(this.rotation));
+            this.setAcceleration(this.acceleration*Math.cos(this.rotForward), this.acceleration*Math.sin(this.rotForward));
             this.engine.start();
             this.engineSound.resume();
         }else{
@@ -70,15 +92,17 @@ export class Ship extends Entity{
             this.engine.stop();
             this.engineSound.pause();
         }
-        if(this.left.isDown){
+
+        // Set angular velocity
+        if(this.leftKey.isDown){
             angularVel += -this.turnVel;
         }
-        if(this.right.isDown){
+        if(this.rightKey.isDown){
             angularVel += this.turnVel;
         }
         this.setAngularVelocity(angularVel);
 
-        if(this.fire.isDown){
+        if(this.fireKey.isDown){
             this.gunModule.setTriggerHeld(true);
         }else{
             this.gunModule.setTriggerHeld(false);
@@ -105,22 +129,13 @@ export class Ship extends Entity{
     }
 
     /**
-     * 
-     * @param {number} score - the score to add.
-     */
-    addScore(score){
-        this.score += score;
-        this.scene.registry.set('score', this.score);
-    }
-
-    /**
      * Kills the ship.
-     * This subtracts a life and makes the ship invisible.
+     * This subtracts a life and makes the ship inactive and invisible.
+     * Use respawn to restore ship.
      */
     kill(){
         this.vulnerable = false;
         this.lives -= 1;
-        this.scene.registry.set('playerLives', this.lives);
         this.engine.stop();
         this.emit("ship_death");
         this.setActive(false).setVisible(false);
@@ -156,8 +171,28 @@ export class Ship extends Entity{
     respawn(x,y){
         this.setActive(true).setVisible(true);
         this.setRotation(0);
+        this.setRotation(this.rotLeft);
         this.setPosition(x,y);
         this.body.setVelocity(0,0);
         this.makeTempInvulnerable(3);
     }
-}
+
+
+    /** Forward in relation to ship sprite */
+    get rotForward() { return this.rotation;}
+    /** Left in relation to ship sprite */
+    get rotLeft() { return this.rotation - Math.PI/2;}
+    /** Right in relation to ship sprite */
+    get rotRight() { return this.rotation+ Math.PI/2;}
+    /** Backwards in relation to ship sprite */
+    get rotBack() { return this.rotation + Math.PI;}
+
+    /** Forward in relation to ship sprite */
+    get angleForward() { return this.angle;}
+    /** Left in relation to ship sprite */
+    get angleLeft() { return this.angle - 90;}
+    /** Right in relation to ship sprite */
+    get angleRight() { return this.angle + 90;}
+    /** Back in relation to ship sprite */
+    get angleBack() { return this.angle + 180;}
+} 

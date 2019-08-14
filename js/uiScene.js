@@ -12,13 +12,16 @@ export class UiScene extends Phaser.Scene {
         this.scoreText = this.add.text(16,16,"Score: 0");
         this.shotText = this.add.text(this.game.config.width-16, this.game.config.height-16, "Shots: " + this.registry.values.shots);
         this.shotText.setOrigin(1,1);
-        // this.livesText = this.add.text(this.game.config.width - 100, 16, "Lives: 3");
+
+        // Clear listener or an exception is throw on game restart
+        this.events.on("shutdown", () => this.registry.events.removeListener("changedata", this.updateData, this), this);
         this.registry.events.on("changedata", this.updateData, this);
         this.lives = [];
         let baseX = this.game.config.width;
         // Add in reverse order to make it look better when popping off lives.
         for (let i = 0; i < this.registry.values.playerLives; i++) {
             let img = this.add.image(baseX - 32 - i*(32+8), 24,"ship");
+            img.setRotation(-Math.PI/2);
             this.lives.push(img);
         }
     }
