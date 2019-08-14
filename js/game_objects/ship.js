@@ -69,7 +69,6 @@ export class Ship extends Entity{
 
     set score(value){
         this._score = value;
-        console.log(this.scene, this.scene.registry);
         this.scene.registry.set('score', this._score);
     }
 
